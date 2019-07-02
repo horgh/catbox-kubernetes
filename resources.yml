@@ -32,6 +32,7 @@ spec:
     app: catbox
   type: LoadBalancer
   loadBalancerIP: 35.185.215.109
+  externalTrafficPolicy: Local
 ---
 apiVersion: apps/v1
 kind: StatefulSet
