@@ -69,10 +69,15 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/catbox
+            - name: servers-config-volume
+              mountPath: /etc/catbox-servers
       volumes:
         - name: config-volume
           configMap:
             name: catbox-config
+        - name: servers-config-volume
+          secret:
+            secretName: servers-config
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -80,13 +85,10 @@ metadata:
   name: catbox-config
 data:
   catbox-0.conf: |-
-    servers-config = /etc/catbox/servers.conf
+    servers-config = /etc/catbox-servers/servers.conf
     server-name    = irc0.summercat.com
     ts6-sid        = 000
   catbox-1.conf: |-
-    servers-config = /etc/catbox/servers.conf
+    servers-config = /etc/catbox-servers/servers.conf
     server-name    = irc1.summercat.com
     ts6-sid        = 100
-  servers.conf: |-
-    irc0.summercat.com = catbox-0,6667,p4ssw0rd,0
-    irc1.summercat.com = catbox-1,6667,p4ssw0rd,0
