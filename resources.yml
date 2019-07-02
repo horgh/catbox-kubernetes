@@ -1,11 +1,33 @@
 ---
+# Servers link internally to the plaintext port to avoid having to think about
+# TLS certificates there. The network is encrypted anyway.
+apiVersion: v1
+kind: Service
+metadata:
+  name: catbox-0-plaintext
+spec:
+  ports:
+    - port: 6667
+  selector:
+    statefulset.kubernetes.io/pod-name: catbox-0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catbox-1-plaintext
+spec:
+  ports:
+    - port: 6667
+  selector:
+    statefulset.kubernetes.io/pod-name: catbox-1
+---
 apiVersion: v1
 kind: Service
 metadata:
   name: catbox-0
 spec:
   ports:
-    - port: 6667
+    - port: 7000
   selector:
     statefulset.kubernetes.io/pod-name: catbox-0
   type: LoadBalancer
@@ -16,7 +38,7 @@ metadata:
   name: catbox-1
 spec:
   ports:
-    - port: 6667
+    - port: 7000
   selector:
     statefulset.kubernetes.io/pod-name: catbox-1
   type: LoadBalancer
@@ -63,14 +85,18 @@ spec:
             - containerPort: 7000
           resources:
             limits:
-              memory: 40Mi
+              memory: 150Mi
             requests:
-              memory: 30Mi
+              memory: 100Mi
           volumeMounts:
             - name: config-volume
               mountPath: /etc/catbox
             - name: servers-config-volume
               mountPath: /etc/catbox-servers
+            - name: certificate-volume
+              mountPath: /etc/catbox-certificate
+            - name: tls-key-volume
+              mountPath: /etc/catbox-tls-key
       volumes:
         - name: config-volume
           configMap:
@@ -78,6 +104,12 @@ spec:
         - name: servers-config-volume
           secret:
             secretName: servers-config
+        - name: certificate-volume
+          configMap:
+            name: certificate
+        - name: tls-key-volume
+          secret:
+            secretName: tls-key
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -85,10 +117,16 @@ metadata:
   name: catbox-config
 data:
   catbox-0.conf: |-
-    servers-config = /etc/catbox-servers/servers.conf
-    server-name    = irc0.summercat.com
-    ts6-sid        = 000
+    listen-port-tls  = 7000
+    certificate-file = /etc/catbox-certificate/certificate.pem
+    key-file         = /etc/catbox-tls-key/key.pem
+    servers-config   = /etc/catbox-servers/servers.conf
+    server-name      = irc0.summercat.com
+    ts6-sid          = 000
   catbox-1.conf: |-
-    servers-config = /etc/catbox-servers/servers.conf
-    server-name    = irc1.summercat.com
-    ts6-sid        = 100
+    listen-port-tls  = 7000
+    certificate-file = /etc/catbox-certificate/certificate.pem
+    key-file         = /etc/catbox-tls-key/key.pem
+    servers-config   = /etc/catbox-servers/servers.conf
+    server-name      = irc1.summercat.com
+    ts6-sid          = 100
