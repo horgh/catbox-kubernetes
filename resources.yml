@@ -2,20 +2,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: irc
-  labels:
-    app: catbox
+  name: catbox-0
 spec:
   ports:
-    # TODO: 7000 instead
     - port: 6667
-      name: plaintext
-    #- port: 7000
-    #  name: secure
-  # Kubernetes docs say the Service must be headless (clusterIP: None) for a StatefulSet, but that's
-  # apparently not true?
   selector:
-    app: catbox
+    statefulset.kubernetes.io/pod-name: catbox-0
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catbox-1
+spec:
+  ports:
+    - port: 6667
+  selector:
+    statefulset.kubernetes.io/pod-name: catbox-1
   type: LoadBalancer
 ---
 apiVersion: apps/v1
@@ -27,22 +30,42 @@ spec:
     matchLabels:
       app: catbox
   serviceName: catbox
-  # TODO: Add more
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
         app: catbox
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - catbox
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: catbox
-          image: gcr.io/elite-vault-142205/catbox:1.11.1-2019-07-01-001
-          command: ['/catbox', '-conf',  '/etc/catbox/catbox.conf']
+          image: gcr.io/elite-vault-142205/catbox:1.11.1-2019-07-01-005
+          command:
+            - ./catbox
+            - -conf
+            - /etc/catbox/$(MY_POD_NAME).conf
+          env:
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           ports:
             - containerPort: 6667
-              name: plaintext
             - containerPort: 7000
-              name: secure
+          resources:
+            limits:
+              memory: 40Mi
+            requests:
+              memory: 30Mi
           volumeMounts:
             - name: config-volume
               mountPath: /etc/catbox
@@ -56,5 +79,14 @@ kind: ConfigMap
 metadata:
   name: catbox-config
 data:
-  catbox.conf: |-
-    # TODO
+  catbox-0.conf: |-
+    servers-config = /etc/catbox/servers.conf
+    server-name    = irc0.summercat.com
+    ts6-sid        = 000
+  catbox-1.conf: |-
+    servers-config = /etc/catbox/servers.conf
+    server-name    = irc1.summercat.com
+    ts6-sid        = 100
+  servers.conf: |-
+    irc0.summercat.com = catbox-0,6667,p4ssw0rd,0
+    irc1.summercat.com = catbox-1,6667,p4ssw0rd,0
