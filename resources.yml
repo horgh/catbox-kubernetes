@@ -24,24 +24,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: catbox-0
+  name: catbox
 spec:
   ports:
     - port: 7000
   selector:
-    statefulset.kubernetes.io/pod-name: catbox-0
+    app: catbox
   type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: catbox-1
-spec:
-  ports:
-    - port: 7000
-  selector:
-    statefulset.kubernetes.io/pod-name: catbox-1
-  type: LoadBalancer
+  loadBalancerIP: 35.185.215.109
 ---
 apiVersion: apps/v1
 kind: StatefulSet
