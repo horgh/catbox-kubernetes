@@ -63,9 +63,9 @@ spec:
           command:
             - ./catbox
             - -conf
-            - /etc/catbox/$(MY_POD_NAME).conf
+            - /etc/catbox/$(POD_NAME).conf
           env:
-            - name: MY_POD_NAME
+            - name: POD_NAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
