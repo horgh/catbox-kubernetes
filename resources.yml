@@ -86,6 +86,10 @@ spec:
               mountPath: /etc/catbox-certificate
             - name: tls-key-volume
               mountPath: /etc/catbox-tls-key
+            - name: opers-config-volume
+              mountPath: /etc/catbox-opers
+            - name: users-config-volume
+              mountPath: /etc/catbox-users
       volumes:
         - name: config-volume
           configMap:
@@ -99,6 +103,12 @@ spec:
         - name: tls-key-volume
           secret:
             secretName: tls-key
+        - name: opers-config-volume
+          secret:
+            secretName: opers-config
+        - name: users-config-volume
+          secret:
+            secretName: users-config
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -110,6 +120,12 @@ data:
     certificate-file = /etc/catbox-certificate/certificate.pem
     key-file         = /etc/catbox-tls-key/key.pem
     servers-config   = /etc/catbox-servers/servers.conf
+    opers-config     = /etc/catbox-opers/opers.conf
+    users-config     = /etc/catbox-users/users.conf
+    server-info      = Good To Know
+    motd             = User error
+    max-nick-length  = 25
+    admin-email      = will@summercat.com
     server-name      = irc0.summercat.com
     ts6-sid          = 000
   catbox-1.conf: |-
@@ -117,5 +133,11 @@ data:
     certificate-file = /etc/catbox-certificate/certificate.pem
     key-file         = /etc/catbox-tls-key/key.pem
     servers-config   = /etc/catbox-servers/servers.conf
+    opers-config     = /etc/catbox-opers/opers.conf
+    users-config     = /etc/catbox-users/users.conf
+    server-info      = Good To Know
+    motd             = User error
+    max-nick-length  = 25
+    admin-email      = will@summercat.com
     server-name      = irc1.summercat.com
     ts6-sid          = 100
