@@ -1,10 +1,8 @@
 ---
-# Servers link internally to the plaintext port to avoid having to think about
-# TLS certificates there. The network is encrypted anyway.
 apiVersion: v1
 kind: Service
 metadata:
-  name: catbox-0-plaintext
+  name: catbox-0
 spec:
   ports:
     - port: 6667
@@ -14,7 +12,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: catbox-1-plaintext
+  name: catbox-1
 spec:
   ports:
     - port: 6667
