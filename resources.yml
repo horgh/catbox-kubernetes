@@ -59,7 +59,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: catbox
-          image: gcr.io/elite-vault-142205/catbox:1.11.1-2019-07-01-005
+          image: gcr.io/elite-vault-142205/catbox:1.11.1-2019-07-06-001
           command:
             - ./catbox
             - -conf
