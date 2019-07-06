@@ -77,6 +77,14 @@ spec:
               memory: 150Mi
             requests:
               memory: 100Mi
+          # I want to delay the container being considered ready so that it has
+          # a chance to link to old instances before they're terminated (during
+          # updates).
+          readinessProbe:
+            exec:
+              command:
+                - /bin/true
+            initialDelaySeconds: 10
           volumeMounts:
             - name: config-volume
               mountPath: /etc/catbox
